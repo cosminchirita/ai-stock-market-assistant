@@ -312,6 +312,72 @@ if ticker:
             except Exception:
                 st.info("News data is currently unavailable for this ticker.")
                  
+            st.subheader("Portfolio Tracker")
 
+            portfolio_input = st.text_input(
+                "Enter portfolio tickers separated by commas:",
+                "AAPL, MSFT, NVDA"
+            )
+
+            if portfolio_input:
+                portfolio_tickers = [
+                    item.strip().upper()
+                    for item in portfolio_input.split(",")
+                    if item.strip()
+                ]
+
+                portfolio_data = []
+
+                for symbol in portfolio_tickers:
+                    try:
+                        portfolio_stock = yf.Ticker(symbol)
+                        portfolio_hist = portfolio_stock.history(period="1y")
+
+                        if not portfolio_hist.empty:
+                            first_price = portfolio_hist["Close"].iloc[0]
+                            last_price = portfolio_hist["Close"].iloc[-1]
+                            yearly_return = ((last_price - first_price) / first_price) * 100
+
+                            portfolio_data.append({
+                                "Ticker": symbol,
+                                "Current Price": round(last_price, 2),
+                                "1Y Return %": round(yearly_return, 2)
+                            })
+
+                    except Exception:
+                        pass
+
+                if portfolio_data:
+                    st.dataframe(portfolio_data)
+
+                    portfolio_fig = go.Figure()
+
+                    for symbol in portfolio_tickers:
+                        portfolio_stock = yf.Ticker(symbol)
+                        portfolio_hist = portfolio_stock.history(period="1y")
+
+                        if not portfolio_hist.empty:
+                            normalized = (
+                                portfolio_hist["Close"] / portfolio_hist["Close"].iloc[0]
+                            ) * 100
+
+                            portfolio_fig.add_trace(go.Scatter(
+                                x=portfolio_hist.index,
+                                y=normalized,
+                                mode="lines",
+                                name=symbol
+                            ))
+
+                    portfolio_fig.update_layout(
+                        title="Portfolio Performance Comparison",
+                        xaxis_title="Date",
+                        yaxis_title="Normalized Performance",
+                        hovermode="x unified",
+                        height=500
+                    )
+
+                    st.plotly_chart(portfolio_fig, use_container_width=True)
+                else:
+                    st.info("No portfolio data found.")
     except Exception as e:
         st.error(f"Error loading data: {e}")
