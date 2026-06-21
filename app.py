@@ -1,4 +1,5 @@
 import streamlit as st
+from textblob import TextBlob
 import yfinance as yf
 import plotly.graph_objects as go
 
@@ -274,7 +275,43 @@ if ticker:
                     "Open", "High", "Low", "Close", "Volume",
                     "MA50", "MA200", "RSI", "MACD", "MACD_Signal"
                 ]].tail(10)
-            )
+            )            
+            st.subheader("Financial News Sentiment")
+
+            try:
+                news = stock.news
+
+                if news:
+                    for article in news[:5]:
+                        content = article.get("content", article)
+
+                        title = content.get("title", "No title")
+                        publisher = content.get("provider", {}).get("displayName", "Unknown publisher")
+                        link = content.get("canonicalUrl", {}).get("url", "")
+
+                        sentiment_score = TextBlob(title).sentiment.polarity
+
+                        if sentiment_score > 0.1:
+                            sentiment = "Bullish 🟢"
+                        elif sentiment_score < -0.1:
+                            sentiment = "Bearish 🔴"
+                        else:
+                            sentiment = "Neutral 🟡"
+
+                        st.markdown(f"**{title}**")
+                        st.write(f"Publisher: {publisher}")
+                        st.write(f"Sentiment: {sentiment}")
+
+                        if link:
+                            st.markdown(f"[Read article]({link})")
+
+                        st.divider()
+                else:
+                    st.info("No recent news found for this ticker.")
+
+            except Exception:
+                st.info("News data is currently unavailable for this ticker.")
+                 
 
     except Exception as e:
         st.error(f"Error loading data: {e}")
