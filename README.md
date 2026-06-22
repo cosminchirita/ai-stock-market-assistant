@@ -4,14 +4,23 @@ AI-powered stock market analysis dashboard built with Python, Streamlit, Yahoo F
 
 ## 🚀 Features
 
-- Real-time stock market data
-- Global stock ticker support
-- Interactive price history charts
-- 50-Day Moving Average
-- 200-Day Moving Average
-- Full historical data option
-- Key company metrics
-- Dark dashboard interface
+## 🚀 Features
+
+* Real-time stock market data using Yahoo Finance
+* Global stock ticker support
+* Interactive price history charts
+* 50-Day and 200-Day Moving Averages
+* RSI technical indicator
+* MACD technical indicator
+* Buy / Hold / Sell trading signal
+* Risk Score from 0 to 100
+* Risk classification: Low, Medium, High
+* Financial news sentiment analysis
+* Portfolio tracker with multiple tickers
+* AI-style stock summary based on technical indicators
+* Optional OpenAI AI Analysis using the user’s own API key
+* Dark dashboard interface
+
 
 ---
 
@@ -22,6 +31,8 @@ AI-powered stock market analysis dashboard built with Python, Streamlit, Yahoo F
 - Yahoo Finance (yfinance)
 - Pandas
 - Plotly
+- OpenAI API
+- TextBlob
 
 ---
 
