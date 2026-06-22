@@ -1,3 +1,4 @@
+
 import streamlit as st
 from textblob import TextBlob
 import yfinance as yf
@@ -24,6 +25,7 @@ period = st.selectbox(
 
 show_all = st.checkbox("Show full stock history")
 
+
 def format_large_number(value):
     if value is None:
         return "N/A"
@@ -35,8 +37,10 @@ def format_large_number(value):
         return f"{value / 1_000_000:.2f} M"
     return f"{value:,}"
 
+
 def format_price(value):
     return f"${value:.2f}" if value is not None else "N/A"
+
 
 def calculate_rsi(data, window=14):
     delta = data["Close"].diff()
@@ -51,6 +55,7 @@ def calculate_rsi(data, window=14):
 
     return rsi
 
+
 def calculate_macd(data):
     ema12 = data["Close"].ewm(span=12, adjust=False).mean()
     ema26 = data["Close"].ewm(span=26, adjust=False).mean()
@@ -60,6 +65,7 @@ def calculate_macd(data):
     histogram = macd - signal
 
     return macd, signal, histogram
+
 
 def get_signal(current_price, ma50, ma200, rsi, macd, macd_signal):
     score = 0
@@ -85,22 +91,37 @@ def get_signal(current_price, ma50, ma200, rsi, macd, macd_signal):
         score -= 1
 
     if score >= 2:
-        return "BUY"
+        return "BUY 🟢"
     elif score <= -2:
-        return "SELL"
+        return "SELL 🔴"
     else:
-        return "HOLD"
+        return "HOLD 🟡"
 
-def get_risk_score(hist):
-    daily_returns = hist["Close"].pct_change()
-    volatility = daily_returns.std() * 100
 
+def get_risk_level(volatility):
     if volatility < 1.5:
-        return "Low", volatility
+        return "Low"
     elif volatility < 3:
-        return "Medium", volatility
+        return "Medium"
     else:
-        return "High", volatility
+        return "High"
+
+
+def calculate_risk_score(current_price, ma200, rsi, volatility):
+    risk_score = 0
+
+    risk_score += min(volatility * 10, 40)
+
+    if rsi > 70:
+        risk_score += min((rsi - 70) * 2, 30)
+    elif rsi < 30:
+        risk_score += min((30 - rsi) * 2, 30)
+
+    if current_price < ma200:
+        risk_score += 30
+
+    return int(min(risk_score, 100))
+
 
 if ticker:
     stock = yf.Ticker(ticker)
@@ -111,6 +132,7 @@ if ticker:
 
         if hist.empty:
             st.error(f"No data returned for ticker: {ticker}")
+
         else:
             company_name = info.get("longName", ticker)
 
@@ -129,8 +151,12 @@ if ticker:
             macd = hist["MACD"].iloc[-1]
             macd_signal = hist["MACD_Signal"].iloc[-1]
 
+            daily_returns = hist["Close"].pct_change()
+            volatility = daily_returns.std() * 100
+
             signal = get_signal(current_price, ma50, ma200, rsi, macd, macd_signal)
-            risk_level, volatility = get_risk_score(hist)
+            risk_level = get_risk_level(volatility)
+            risk_score = calculate_risk_score(current_price, ma200, rsi, volatility)
 
             market_cap = info.get("marketCap", None)
             volume = info.get("volume", None)
@@ -162,6 +188,48 @@ if ticker:
             st.write(f"Data available from: {hist.index.min().date()}")
             st.write(f"Latest date: {hist.index.max().date()}")
             st.write(f"Total trading days: {len(hist):,}")
+
+            st.subheader("AI-Style Stock Summary")
+
+            summary = f"""
+{ticker} is currently trading at {format_price(current_price)} with a period return of {return_pct:.2f}%.
+
+Technical outlook:
+
+- RSI is {rsi:.2f}, indicating {'overbought conditions' if rsi > 70 else 'oversold conditions' if rsi < 30 else 'neutral momentum'}.
+- MACD is {'above' if macd > macd_signal else 'below'} the signal line.
+- The stock is trading {'above' if current_price > ma50 else 'below'} the 50-day moving average.
+- The stock is trading {'above' if current_price > ma200 else 'below'} the 200-day moving average.
+
+📈 Overall signal: {signal}
+
+⚠️ Risk level: {risk_level}
+
+📊 Volatility: {volatility:.2f}%
+
+This summary is generated automatically using technical indicators and market data.
+"""
+            st.info(summary)
+
+            st.subheader("Trading Signal")
+
+            if signal.startswith("BUY"):
+                st.success(signal)
+            elif signal.startswith("SELL"):
+                st.error(signal)
+            else:
+                st.warning(signal)
+
+            st.subheader("Risk Score")
+
+            if risk_score < 35:
+                st.success(f"🟢 Low Risk ({risk_score}/100)")
+            elif risk_score < 70:
+                st.warning(f"🟡 Medium Risk ({risk_score}/100)")
+            else:
+                st.error(f"🔴 High Risk ({risk_score}/100)")
+
+            st.progress(risk_score / 100)
 
             st.subheader("Price History with Moving Averages")
 
@@ -270,12 +338,14 @@ if ticker:
             st.plotly_chart(volume_fig, use_container_width=True)
 
             st.subheader("Recent Price Data")
+
             st.dataframe(
                 hist[[
                     "Open", "High", "Low", "Close", "Volume",
                     "MA50", "MA200", "RSI", "MACD", "MACD_Signal"
                 ]].tail(10)
-            )            
+            )
+
             st.subheader("Financial News Sentiment")
 
             try:
@@ -311,7 +381,7 @@ if ticker:
 
             except Exception:
                 st.info("News data is currently unavailable for this ticker.")
-                 
+
             st.subheader("Portfolio Tracker")
 
             portfolio_input = st.text_input(
@@ -377,7 +447,9 @@ if ticker:
                     )
 
                     st.plotly_chart(portfolio_fig, use_container_width=True)
+
                 else:
                     st.info("No portfolio data found.")
+
     except Exception as e:
         st.error(f"Error loading data: {e}")
