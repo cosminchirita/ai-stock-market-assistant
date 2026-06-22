@@ -85,7 +85,7 @@ streamlit run app.py
 
 ### Microsoft Example
 
-![Microsoft Example](screenshots/MUrun.png)
+![Micron Example](screenshots/MUrun.png)
 
 ---
 
