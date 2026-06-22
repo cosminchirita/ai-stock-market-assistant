@@ -83,7 +83,7 @@ streamlit run app.py
 
 ---
 
-### Microsoft Example
+### Micron Example
 
 ![Micron Example](screenshots/MUrun.png)
 
