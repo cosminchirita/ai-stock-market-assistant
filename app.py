@@ -170,7 +170,14 @@ if ticker:
             col1, col2, col3, col4 = st.columns(4)
             col1.metric("Current Price", format_price(current_price))
             col2.metric("Period Return", f"{return_pct:.2f}%")
-            col3.metric("Signal", signal)
+            if signal == "BUY":
+                 col3.metric("Signal", "BUY")
+
+            elif signal == "SELL":
+                 col3.metric("Signal", "SELL")
+
+            else:
+                 col3.metric("Signal", "HOLD")
             col4.metric("Risk Level", risk_level)
 
             col5, col6, col7, col8 = st.columns(4)
