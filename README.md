@@ -95,18 +95,6 @@ streamlit run app.py
 
 ---
 
-## 🔮 Planned Improvements
-
-- RSI Indicator
-- MACD Indicator
-- Buy / Hold / Sell Signal
-- Risk Score
-- Volatility Score
-- Portfolio Tracker
-- AI-generated stock analysis
-- Financial news sentiment analysis
-- Multi-source market data integration
-
 ---
 
 ## 👨‍💻 Author
