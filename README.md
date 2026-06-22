@@ -93,6 +93,23 @@ streamlit run app.py
 
 ![NVIDIA Example](screenshots/NVDArun.jpg)
 
+---
+
+### 🤖 OpenAI Analysis
+
+![OpenAI_API_Key](screenshots/OpenAI_API_Key.jpg)
+
+---
+
+### ⚠️ Risk Score Dashboard
+
+![Risk+OpenAI](screenshots/Risk+OpenAI.jpg)
+
+---
+
+### 📈 RSI & MACD Indicators
+
+![RSI+MACD](screenshots/RSI+MACDgraphs.jpg)
 
 ---
 
