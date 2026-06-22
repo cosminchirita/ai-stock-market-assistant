@@ -4,8 +4,6 @@ AI-powered stock market analysis dashboard built with Python, Streamlit, Yahoo F
 
 ## 🚀 Features
 
-## 🚀 Features
-
 * Real-time stock market data using Yahoo Finance
 * Global stock ticker support
 * Interactive price history charts
