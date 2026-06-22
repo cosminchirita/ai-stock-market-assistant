@@ -1,5 +1,6 @@
 
 import streamlit as st
+from openai import OpenAI
 from textblob import TextBlob
 import yfinance as yf
 import plotly.graph_objects as go
@@ -24,7 +25,10 @@ period = st.selectbox(
 )
 
 show_all = st.checkbox("Show full stock history")
-
+openai_api_key = st.text_input(
+    "OpenAI API Key (optional)",
+    type="password"
+)
 
 def format_large_number(value):
     if value is None:
@@ -237,6 +241,47 @@ This summary is generated automatically using technical indicators and market da
                 st.error(f"🔴 High Risk ({risk_score}/100)")
 
             st.progress(risk_score / 100)
+            st.subheader("OpenAI AI Analysis")
+
+            if openai_api_key:
+                 if st.button("Generate AI Analysis"):
+                     client = OpenAI(api_key=openai_api_key)
+
+                     prompt = f"""
+             You are a financial market analysis assistant.
+
+             Analyze this stock using the technical data below.
+             Do not provide guaranteed financial advice. Use a cautious, educational tone.
+
+             Ticker: {ticker}
+             Current price: {format_price(current_price)}
+             Period return: {return_pct:.2f}%
+             RSI: {rsi:.2f}
+             MACD: {macd:.2f}
+             MACD Signal: {macd_signal:.2f}
+             50-day moving average: {ma50:.2f}
+             200-day moving average: {ma200:.2f}
+             Trading signal: {signal}
+             Risk level: {risk_level}
+             Risk score: {risk_score}/100
+             Volatility: {volatility:.2f}%
+
+             Write:
+             1. Short technical summary
+             2. Bullish factors
+             3. Bearish factors
+             4. Risk explanation
+             5. Final educational conclusion
+             """
+
+                 response = client.responses.create(
+                     model="gpt-5-mini",
+                     input=prompt
+        )
+
+                 st.write(response.output_text)
+            else:
+                 st.info("Enter your OpenAI API key to generate an AI-powered analysis.")
 
             st.subheader("Price History with Moving Averages")
 
