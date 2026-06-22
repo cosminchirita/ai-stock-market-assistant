@@ -93,7 +93,6 @@ streamlit run app.py
 
 ![NVIDIA Example](screenshots/NVDArun.jpg)
 
----
 
 ---
 
